@@ -7,11 +7,7 @@ import PetSource from "./data.cjs";
 async function startApolloServer() {
   const server = new ApolloServer({
       typeDefs,
-      resolvers,
-      cors: {
-        origin: 'http://localhost:3000',
-        credentials: true,
-      },
+      resolvers
     })
 
      const { url } = await startStandaloneServer(server, {

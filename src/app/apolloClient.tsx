@@ -12,8 +12,7 @@ setVerbosity("debug");
 
 function makeClient() {
   const httpLink = new HttpLink({
-    uri: "http://localhost:4000/",
-    fetchOptions: { cache: "no-store" },
+    uri: 'http://localhost:4000/'
   });
 
   return new NextSSRApolloClient({

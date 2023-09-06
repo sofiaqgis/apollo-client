@@ -22,3 +22,13 @@ export const Img = styled.img`
 export const Article = styled.article`
 min-height: 200px;
 `
+export const Button = styled.button`
+    display: flex;
+    border: none;
+    background-color: white;
+    align-items: center;
+    padding-top: 8px;    
+    & svg {
+        margin-right: 4px;
+    }
+`
