@@ -9,6 +9,7 @@ import {
 import type { AppProps } from "next/app";
 import merge from "deepmerge";
 import isEqual from "lodash/isEqual";
+import { NextPageContext } from "next";
 export const APOLLO_STATE_PROP_NAME = "__APOLLO_STATE__";
 let apolloClient: ApolloClient<NormalizedCacheObject> | undefined;
 
@@ -66,17 +67,24 @@ export function addApolloState(
 }
 
 export function useApollo(pageProps: any) {
-  const state = pageProps[APOLLO_STATE_PROP_NAME];
+  const state = pageProps? pageProps[APOLLO_STATE_PROP_NAME]: null;
+  console.log("state", state, pageProps);
   const store = useMemo(() => initializeApollo(state), [state]);
   return store;
 }
 
-export function ApolloWrapper({ Component, pageProps }: AppProps) {
+interface Props {
+  children?: any
+  pageProps: NextPageContext
+}
+
+export function ApolloWrapper({ children, pageProps }: Props) {
   const apolloClient = useApollo(pageProps)
+
 
   return (
     <ApolloProvider client={apolloClient}>
-      <Component {...pageProps} />
+      {children}
     </ApolloProvider>
   );
 }

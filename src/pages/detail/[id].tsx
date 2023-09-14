@@ -1,7 +1,6 @@
-import { initializeApollo, addApolloState } from "../../app/client";
-import { gql, useMutation } from "@apollo/client";
+import { initializeApollo, addApolloState, ApolloWrapper } from "../../app/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { GetStaticPropsContext } from "next";
-import { ApolloWrapper } from "../../app/apolloClient";
 import React, { useState } from 'react'
 import { Img, ImgWrapper, Article } from './../../components/PhotoCard/styles'
 import { MdFavoriteBorder, MdFavorite } from 'react-icons/md'
@@ -40,17 +39,17 @@ mutation LikePhoto($input: LikePhoto!) {
   }
 }
 `
-  
+
    export async function getStaticPaths() {
     return {
       paths: [], // Leave it empty since you want to generate paths dynamically
       fallback: "blocking", // Set fallback to "blocking" to enable dynamic static generation
     };
   }
-  
+
   export async function getStaticProps(context: GetStaticPropsContext) {
     const apolloClient = initializeApollo();
-  
+
     const { data } = await apolloClient.query({
       query: QUERY_PHOTO,
       variables: {
@@ -66,12 +65,22 @@ mutation LikePhoto($input: LikePhoto!) {
     });
   }
 
-  export function PhotoPage({photo, id}:{photo:PhotoCardProps, id:number}) {
+  export function PhotoPage({id}:{photo:PhotoCardProps, id:number}) {
     const key = `like-${id}`
     const [liked, setLiked] = useState(false)
      const Icon = liked ? MdFavorite : MdFavoriteBorder
      const [changeLikes] =  useMutation(LIKE_PHOTO)
-   
+
+     const {data} = useQuery(QUERY_PHOTO, {
+      variables: {
+        photoId: id,
+      },
+      fetchPolicy: "cache-only",
+     });
+
+
+     const {photo} = data ? data : {photo: null};
+
      const handleFavClick = async () => {
        const newAction = liked ? "unlike" : "like";
        try {
@@ -96,7 +105,7 @@ mutation LikePhoto($input: LikePhoto!) {
     if (!photo) {
       return <div>Loading...</div>; // Handle the case when the photo data is not available yet
     }
-  
+
 
     return (
         <Article>
@@ -112,10 +121,10 @@ mutation LikePhoto($input: LikePhoto!) {
     )
   }
 
-function ShowPage({ photo, id }: { photo: PhotoCardProps, id: number }) {
+function ShowPage({ photo, id, ...rest }: { photo: PhotoCardProps, id: number }) {
     return(
-      <ApolloWrapper>
-    {photo && 
+      <ApolloWrapper pageProps={rest}>
+    {photo &&
       <PhotoPage photo={photo} id={id}/>
  }
   </ApolloWrapper>
